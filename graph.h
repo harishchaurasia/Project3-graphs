@@ -18,6 +18,9 @@ private:
     int numVertices;
     bool isDirected;
     AdjacencyList *adjLists;
+    // Helper methods for adding edges
+    void insertAtFront(int start, int end, double weight);
+    void insertAtRear(int start, int end, double weight);
     // Add additional members as needed
 };
 

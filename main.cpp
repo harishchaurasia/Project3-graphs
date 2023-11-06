@@ -1,10 +1,16 @@
 // main.cpp
 #include "graph.h"
-#include "util.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cstdlib> // for atoi
+#include "data_structures.h"
+
+// Placeholder for handleInvalidInstruction
+void handleInvalidInstruction()
+{
+    std::cerr << "Invalid instruction.\n";
+}
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +25,6 @@ int main(int argc, char *argv[])
     int flag = std::atoi(argv[3]);
     bool isDirected = (graphType == "DirectedGraph");
 
-    // Read the graph from the input file and build the adjacency lists
     std::ifstream inputFile(inputFilename);
     if (!inputFile.is_open())
     {
@@ -32,20 +37,17 @@ int main(int argc, char *argv[])
 
     Graph graph(numVertices, isDirected);
 
-    for (int i = 0; i < numEdges; ++i)
+    for (int i = 0; i < numEdges; i++)
     {
-        int start, end;
+        int start, end, edgeIndex;
         double weight;
-        inputFile >> start >> end >> weight;
+        inputFile >> edgeIndex >> start >> end >> weight;
 
-        if (flag == 1)
-        {
-            graph.addEdge(start, end, weight, flag);
-        }
+        // Assuming that vertices in the input file are 1-indexed and need to be converted to 0-indexed
+        graph.addEdge(start - 1, end - 1, weight, flag);
     }
 
     inputFile.close();
-
     // Now handle stdin for graph manipulation and queries
     std::string command;
     while (std::cin >> command)
@@ -62,33 +64,25 @@ int main(int argc, char *argv[])
         {
             int source, destination;
             std::cin >> source >> destination;
-            // You would need to call your SinglePair shortest path function here
-            // For example:
-            // graph.singlePairShortestPath(source, destination);
+            // Implement your SinglePair shortest path function here
         }
         else if (command == "SingleSource")
         {
             int source;
             std::cin >> source;
-            // You would need to call your SingleSource shortest paths function here
-            // For example:
-            // graph.singleSourceShortestPaths(source);
+            // Implement your SingleSource shortest paths function here
         }
         else if (command == "PrintLength")
         {
             int s, t;
             std::cin >> s >> t;
-            // You would need to print the length of the shortest path between s and t
-            // For example:
-            // graph.printShortestPathLength(s, t);
+            // Implement the printShortestPathLength function here
         }
         else if (command == "PrintPath")
         {
             int s, t;
             std::cin >> s >> t;
-            // You would need to print the shortest path between s and t
-            // For example:
-            // graph.printShortestPath(s, t);
+            // Implement the printShortestPath function here
         }
         else
         {

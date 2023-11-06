@@ -7,9 +7,9 @@
 Graph::Graph(int vertices, bool directed) : numVertices(vertices), isDirected(directed)
 {
     // Initialize adjacency lists
-    adjLists = new AdjacencyList[numVertices + 1]; // Assuming 1-indexed vertices
-    for (int i = 1; i <= numVertices; ++i)
-    {
+    adjLists = new AdjacencyList[numVertices]; // Correct indexing for C++
+    for (int i = 0; i < numVertices; ++i)
+    { // Use 0-based indexing
         adjLists[i].head = nullptr;
     }
 }
@@ -17,8 +17,8 @@ Graph::Graph(int vertices, bool directed) : numVertices(vertices), isDirected(di
 Graph::~Graph()
 {
     // Free adjacency lists
-    for (int i = 1; i <= numVertices; ++i)
-    {
+    for (int i = 0; i < numVertices; ++i)
+    { // Use 0-based indexing
         Node *current = adjLists[i].head;
         while (current != nullptr)
         {
@@ -30,76 +30,89 @@ Graph::~Graph()
     delete[] adjLists;
 }
 
-// Add edge
+// void Graph::addEdge(int start, int end, double weight, int flag)
+// {
+//     // Convert 1-indexed vertices to 0-indexed for internal representation
+
+//     if (flag == 1)
+//     {
+//         // Insert at the front for directed graph or both ends for undirected graph
+//         insertAtFront(start, end, weight);
+//         if (!isDirected)
+//         {
+//             insertAtFront(end, start, weight);
+//         }
+//     }
+//     else if (flag == 2)
+//     {
+//         // Insert at the rear for directed graph or both ends for undirected graph
+//         insertAtRear(start, end, weight);
+//         if (!isDirected)
+//         {
+//             insertAtRear(end, start, weight);
+//         }
+//     }
+// }
+
 void Graph::addEdge(int start, int end, double weight, int flag)
 {
-    // Create a new node for the edge (u, v)
-    Node *newNode = new Node(end, weight, nullptr);
+    // Convert 1-indexed vertices to 0-indexed for internal representation
+    // start -= 1;
+    // end -= 1;
 
     if (flag == 1)
     {
-        // Insert at the front of the list for ADJ[start]
-        newNode->next = adjLists[start].head;
-        adjLists[start].head = newNode;
-    }
-    else
-    { // flag == 2
-        // Insert at the rear of the list for ADJ[start]
-        if (adjLists[start].head == nullptr)
+        // Insert at the front for directed graph or both ends for undirected graph
+        insertAtFront(start, end, weight);
+        if (!isDirected)
         {
-            adjLists[start].head = newNode;
-        }
-        else
-        {
-            Node *current = adjLists[start].head;
-            while (current->next != nullptr)
-            {
-                current = current->next;
-            }
-            current->next = newNode;
+            insertAtFront(end, start, weight);
         }
     }
-
-    // If the graph is undirected, add an edge in the other direction (v, u)
-    if (!isDirected)
+    else if (flag == 2)
     {
-        Node *newNode2 = new Node(start, weight, nullptr);
-        if (flag == 1)
+        // Insert at the rear for directed graph or both ends for undirected graph
+        insertAtRear(start, end, weight);
+        if (!isDirected)
         {
-            // Insert at the front for ADJ[end]
-            newNode2->next = adjLists[end].head;
-            adjLists[end].head = newNode2;
-        }
-        else
-        { // flag == 2
-            // Insert at the rear for ADJ[end]
-            if (adjLists[end].head == nullptr)
-            {
-                adjLists[end].head = newNode2;
-            }
-            else
-            {
-                Node *current = adjLists[end].head;
-                while (current->next != nullptr)
-                {
-                    current = current->next;
-                }
-                current->next = newNode2;
-            }
+            insertAtRear(end, start, weight);
         }
     }
 }
 
-// Print adjacency list
+void Graph::insertAtFront(int start, int end, double weight)
+{
+    Node *newNode = new Node(end, weight, adjLists[start].head);
+    adjLists[start].head = newNode;
+}
+
+void Graph::insertAtRear(int start, int end, double weight)
+{
+    Node *newNode = new Node(end, weight, nullptr);
+    if (adjLists[start].head == nullptr)
+    {
+        adjLists[start].head = newNode;
+    }
+    else
+    {
+        Node *current = adjLists[start].head;
+        while (current->next != nullptr)
+        {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+}
+
 void Graph::printAdjList()
 {
-    for (int i = 1; i <= numVertices; ++i)
+    for (int i = 0; i < numVertices; ++i)
     {
-        std::cout << "ADJ[" << i << "]:";
+        std::cout << "ADJ[" << (i + 1) << "]:";
         Node *current = adjLists[i].head;
         while (current != nullptr)
         {
-            std::cout << "-->[" << i << " " << current->end << ": " << std::fixed << std::setprecision(2) << current->weight << "]";
+            std::cout << "-->[" << (i + 1) << " " << (current->end + 1) << ": " << std::fixed << std::setprecision(2) << current->weight << "]";
             current = current->next;
         }
         std::cout << std::endl;
