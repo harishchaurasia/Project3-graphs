@@ -1,31 +1,33 @@
-// // heap.h
-// #ifndef HEAP_H
-// #define HEAP_H
+/*
+Name: Harish Chaurasia
+ASU ID: 1225120117
+*/
 
-// #include <vector>
+#ifndef HEAP_H
+#define HEAP_H
 
-// class Heap
-// {
-// public:
-//     Heap(int capacity);
-//     void insert(int element, double key);
-//     void decreaseKey(int element, double newKey);
-//     int extractMin();
-//     bool isEmpty() const;
-//     bool contains(int element) const;
+#include "data_structures.h"
 
-// private:
-//     std::vector<int> heapArray; // This stores the elements of the heap
-//     std::vector<double> keys;   // This parallel array stores the keys of the elements
-//     std::vector<int> positions; // This array stores the positions of elements in the heapArray for O(1) access
-//     int size;                   // Current size of the heap
-//     int capacity;               // Maximum capacity of the heap
+// To initialize a new heap with the given capacity
+HEAP *initHeap(int capacity);
 
-//     int parent(int index) const;
-//     int leftChild(int index) const;
-//     int rightChild(int index) const;
-//     void heapify(int index);
-//     void swap(int index1, int index2);
-// };
+// To insert a new element with the given key into the heap
+int insertHeap(HEAP *heap, ELEMENT *element);
 
-// #endif // HEAP_H
+// To extract the minimum element from the heap
+ELEMENT *extractMin(HEAP *heap);
+
+// To decrease the key of an element at a given position in the heap
+bool decreaseKey(HEAP *heap, int position, double newKey);
+
+// To build a min heap from an unsorted array
+void buildHeap(HEAP *heap);
+
+// To Print the current heap
+void printHeap(HEAP *heap);
+
+// To free the memory allocated for the heap
+void freeHeap(HEAP *heap);
+
+bool isMinHeap(HEAP *heap);
+#endif

@@ -1,110 +1,159 @@
-// // heap.cpp
-// #include "heap.h"
-// #include <algorithm>
-// #include <stdexcept>
+#include "heap.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-// Heap::Heap(int capacity) : capacity(capacity), size(0), heapArray(capacity + 1), keys(capacity + 1), positions(capacity + 1, -1) {}
+HEAP *initHeap(int capacity)
+{
+    HEAP *heap = (HEAP *)malloc(sizeof(HEAP));
+    if (!heap)
+    {
+        fprintf(stderr, "Memory error: Cannot initialize heap.\n");
+        return NULL;
+    }
 
-// void Heap::insert(int element, double key)
-// {
-//     if (size == capacity)
-//     {
-//         throw std::overflow_error("Heap capacity exceeded");
-//     }
-//     // Insert new element at the end of the heap
-//     size++;
-//     heapArray[size] = element;
-//     keys[element] = key;
-//     positions[element] = size;
-//     // Fix the min-heap property if it is violated
-//     int i = size;
-//     while (i != 1 && keys[heapArray[parent(i)]] > keys[heapArray[i]])
-//     {
-//         swap(i, parent(i));
-//         i = parent(i);
-//     }
-// }
+    heap->capacity = capacity;
+    heap->size = 0;
+    heap->H = (ELEMENT **)malloc((capacity + 1) * sizeof(ELEMENT *)); // +1 to handle 1-indexed heap
+    if (!heap->H)
+    {
+        fprintf(stderr, "Memory error: Cannot initialize heap array.\n");
+        free(heap);
+        return NULL;
+    }
 
-// void Heap::decreaseKey(int element, double newKey)
-// {
-//     // Decrease the value of key for element
-//     if (!contains(element))
-//     {
-//         throw std::invalid_argument("Element not found in heap");
-//     }
-//     keys[element] = newKey;
-//     int i = positions[element];
-//     while (i != 1 && keys[heapArray[parent(i)]] > keys[heapArray[i]])
-//     {
-//         swap(i, parent(i));
-//         i = parent(i);
-//     }
-// }
+    for (int i = 0; i <= capacity; i++)
+    {
+        heap->H[i] = NULL; // Initialize all elements to NULL
+    }
 
-// int Heap::extractMin()
-// {
-//     if (size == 0)
-//     {
-//         throw std::underflow_error("Heap is empty");
-//     }
-//     // The root of the heap is the minimum element
-//     int minElement = heapArray[1];
-//     heapArray[1] = heapArray[size];
-//     positions[heapArray[1]] = 1;
-//     size--;
-//     heapify(1);                 // Heapify the root
-//     positions[minElement] = -1; // Mark the extracted element as not in heap
-//     return minElement;
-// }
+    return heap;
+}
 
-// bool Heap::isEmpty() const
-// {
-//     return size == 0;
-// }
+void heapify(HEAP *heap, int i)
+{
+    int smallest = i;
+    int left = 2 * i + 1;  // Corrected to 0-based index
+    int right = 2 * i + 2; // Corrected to 0-based index
 
-// bool Heap::contains(int element) const
-// {
-//     return positions[element] != -1;
-// }
+    if (left < heap->size && heap->H[left]->key < heap->H[smallest]->key)
+    {
+        smallest = left;
+    }
 
-// int Heap::parent(int index) const
-// {
-//     return index / 2;
-// }
+    if (right < heap->size && heap->H[right]->key < heap->H[smallest]->key)
+    {
+        smallest = right;
+    }
 
-// int Heap::leftChild(int index) const
-// {
-//     return 2 * index;
-// }
+    if (smallest != i)
+    {
+        ELEMENT *temp = heap->H[i];
+        heap->H[i] = heap->H[smallest];
+        heap->H[smallest] = temp;
+        heapify(heap, smallest);
+    }
+}
 
-// int Heap::rightChild(int index) const
-// {
-//     return 2 * index + 1;
-// }
+void buildHeap(HEAP *heap)
+{
+    for (int i = heap->size / 2; i >= 1; i--)
+    { // Start from the last parent node
+        heapify(heap, i);
+    }
+}
 
-// void Heap::heapify(int index)
-// {
-//     int left = leftChild(index);
-//     int right = rightChild(index);
-//     int smallest = index;
-//     if (left <= size && keys[heapArray[left]] < keys[heapArray[index]])
-//     {
-//         smallest = left;
-//     }
-//     if (right <= size && keys[heapArray[right]] < keys[heapArray[smallest]])
-//     {
-//         smallest = right;
-//     }
-//     if (smallest != index)
-//     {
-//         swap(index, smallest);
-//         heapify(smallest);
-//     }
-// }
+int insertHeap(HEAP *heap, ELEMENT *element)
+{
+    if (heap->size == heap->capacity)
+    {
+        fprintf(stderr, "Error: Heap is full.\n");
+        return -1;
+    }
 
-// void Heap::swap(int index1, int index2)
-// {
-//     std::swap(positions[heapArray[index1]], positions[heapArray[index2]]);
-//     std::swap(heapArray[index1], heapArray[index2]);
-//     std::swap(keys[heapArray[index1]], keys[heapArray[index2]]);
-// }
+    // Insert the element at the end of the heap array
+    int position = heap->size;
+    heap->H[position] = element;
+
+    // Bubble up the element to maintain the heap property
+    while (position > 0 && heap->H[(position - 1) / 2]->key > heap->H[position]->key)
+    {
+        ELEMENT *temp = heap->H[position];
+        heap->H[position] = heap->H[(position - 1) / 2];
+        heap->H[(position - 1) / 2] = temp;
+        position = (position - 1) / 2;
+    }
+
+    heap->size++;
+    return position; // Return the position where the element was inserted
+}
+
+ELEMENT *extractMin(HEAP *heap)
+{
+    if (heap->size < 1)
+    {
+        fprintf(stderr, "Error: Heap is empty.\n");
+        return NULL;
+    }
+
+    ELEMENT *min = heap->H[1];
+    heap->H[1] = heap->H[heap->size];
+    heap->size--;
+    heapify(heap, 1);
+
+    return min;
+}
+
+bool decreaseKey(HEAP *heap, int position, double newKey)
+{
+    if (position < 1 || position > heap->size || heap->H[position]->key < newKey)
+    {
+        fprintf(stderr, "Error: Invalid call to decreaseKey.\n");
+        return false;
+    }
+
+    heap->H[position]->key = newKey;
+    while (position > 1 && heap->H[position / 2]->key > heap->H[position]->key)
+    {
+        ELEMENT *temp = heap->H[position];
+        heap->H[position] = heap->H[position / 2];
+        heap->H[position / 2] = temp;
+        position = position / 2;
+    }
+
+    return true;
+}
+
+void printHeap(HEAP *heap)
+{
+    printf("Heap size: %d\n", heap->size);
+    for (int i = 1; i <= heap->size; i++)
+    {
+        printf("Key of element at position %d: %.6lf\n", i, heap->H[i]->key);
+    }
+}
+
+void freeHeap(HEAP *heap)
+{
+    if (heap->H)
+    {
+        for (int i = 1; i <= heap->capacity; i++)
+        {
+            free(heap->H[i]); // heap->H[i] may be NULL if it was extracted
+        }
+        free(heap->H);
+    }
+    free(heap);
+}
+
+bool isMinHeap(HEAP *heap)
+{
+    for (int i = 1; i <= heap->size / 2; i++)
+    {
+        if ((2 * i <= heap->size && heap->H[i]->key > heap->H[2 * i]->key) ||
+            (2 * i + 1 <= heap->size && heap->H[i]->key > heap->H[2 * i + 1]->key))
+        {
+            return false;
+        }
+    }
+    return true;
+}

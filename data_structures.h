@@ -42,16 +42,20 @@ struct AdjacencyList
     // Add methods as needed
 };
 
-// // Define the Stack structure
-// struct Stack
-// {
-//     // Add members and methods as needed
-// };
-
 // Define the Heap structure
-struct Heap
+typedef struct
 {
-    // Add members and methods as needed
-};
+    int vertex; // This might be needed to keep track of the vertex number in Dijkstra's algorithm
+    double key;
+    // Any other information that might be needed for the heap elements
+} ELEMENT;
+
+typedef struct
+{
+    int capacity;
+    int size;
+    ELEMENT **H; // Array of pointers to ELEMENT
+    // You may need a heapify count if you're keeping track of the number of heapify operations
+} HEAP;
 
 #endif // DATA_STRUCTURES_H
