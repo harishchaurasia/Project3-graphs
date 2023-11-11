@@ -1,34 +1,31 @@
 // graph.cpp
+
 #include "graph.h"
-#include <vector>
-#include <limits>
 #include "heap.h"
+#include "data_structures.h"
+#include "stack.h"
 #include <iostream>
 #include <iomanip>
-#include "data_structures.h"
 
-Graph::Graph(int vertices, bool directed)
-    : numVertices(vertices), isDirected(directed), adjLists(new AdjacencyList[vertices]), dist(vertices, std::numeric_limits<double>::max()), pred(vertices, -1)
+using namespace std;
+
+Graph::Graph(int vertices, bool directed) : numVertices(vertices), isDirected(directed)
 {
-    // Initialize adjacency lists
-    adjLists = new AdjacencyList[numVertices]; // Correct indexing for C++
-    for (int i = 0; i < numVertices; ++i)
-    { // Use 0-based indexing
-        adjLists[i].head = nullptr;
-    }
+    adjLists = new AdjacencyList[numVertices + 1]; // +1 for 1-based indexing
+    dist.resize(numVertices + 1, std::numeric_limits<double>::max());
+    pred.resize(numVertices + 1, -1);
 }
 
 Graph::~Graph()
 {
-    // Free adjacency lists
-    for (int i = 0; i < numVertices; ++i)
-    { // Use 0-based indexing
+    for (int i = 1; i <= numVertices; ++i) // 1-based indexing
+    {
         Node *current = adjLists[i].head;
         while (current != nullptr)
         {
-            Node *toDelete = current;
+            Node *temp = current;
             current = current->next;
-            delete toDelete;
+            delete temp;
         }
     }
     delete[] adjLists;
@@ -36,25 +33,18 @@ Graph::~Graph()
 
 void Graph::addEdge(int start, int end, double weight, int flag)
 {
-    // Convert 1-indexed vertices to 0-indexed for internal representationStop
-
+    // Assuming start and end vertices are 1-indexed
     if (flag == 1)
     {
-        // Insert at the front for directed graph or both ends for undirected graph
         insertAtFront(start, end, weight);
         if (!isDirected)
-        {
             insertAtFront(end, start, weight);
-        }
     }
     else if (flag == 2)
     {
-        // Insert at the rear for directed graph or both ends for undirected graph
         insertAtRear(start, end, weight);
         if (!isDirected)
-        {
             insertAtRear(end, start, weight);
-        }
     }
 }
 
@@ -75,186 +65,125 @@ void Graph::insertAtRear(int start, int end, double weight)
     {
         Node *current = adjLists[start].head;
         while (current->next != nullptr)
-        {
             current = current->next;
-        }
         current->next = newNode;
     }
 }
 
 void Graph::printAdjList()
 {
-    for (int i = 0; i < numVertices; ++i)
+    for (int i = 1; i <= numVertices; ++i) // 1-based indexing
     {
-        std::cout << "ADJ[" << (i + 1) << "]:";
+        cout << "ADJ[" << i << "]:";
         Node *current = adjLists[i].head;
         while (current != nullptr)
         {
-            std::cout << "-->[" << (i + 1) << " " << (current->end + 1) << ": " << std::fixed << std::setprecision(2) << current->weight << "]";
+            cout << "-->[" << i << " " << current->end << ": " << fixed << setprecision(2) << current->weight << "]";
             current = current->next;
         }
-        std::cout << std::endl;
+        cout << endl;
     }
 }
 
-// Assuming the Vertex and Graph classes are defined with necessary attributes and methods
-// void Graph::singleSourceShortestPath(int source)
-// {
-//     // Initialize single source
-//     std::vector<double> dist(numVertices, std::numeric_limits<double>::max()); // Distance from source to all vertices
-//     std::vector<int> pred(numVertices, -1);                                    // Predecessors of all vertices
-//     std::vector<bool> visited(numVertices, false);                             // Visited vertices
-
-//     HEAP *minHeap = initHeap(numVertices);
-//     dist[source] = 0.0; // Distance from source to itself is always 0
-
-//     // Insert all vertices with their distances into the min-heap
-//     for (int i = 0; i < numVertices; ++i)
-//     {
-//         ELEMENT *vertexElement = (ELEMENT *)malloc(sizeof(ELEMENT));
-//         vertexElement->vertex = i;
-//         vertexElement->key = dist[i];
-//         insertHeap(minHeap, vertexElement->key);
-//     }
-
-//     // Main loop of Dijkstra's algorithm
-//     while (minHeap->size > 0)
-//     {
-//         ELEMENT *uElement = extractMin(minHeap);
-//         int u = uElement->vertex;
-//         free(uElement);
-
-//         if (visited[u])
-//             continue;      // Skip if vertex is already visited
-//         visited[u] = true; // Mark this vertex as visited
-
-//         // Iterate through all adjacent vertices (neighbors) of u
-//         for (Node *neighbor = adjLists[u].head; neighbor != nullptr; neighbor = neighbor->next)
-//         {
-//             int v = neighbor->end;
-//             double weight = neighbor->weight;
-
-//             // Relaxation step
-//             if (!visited[v] && dist[u] + weight < dist[v])
-//             {
-//                 dist[v] = dist[u] + weight;       // Update distance
-//                 pred[v] = u;                      // Update predecessor
-//                 decreaseKey(minHeap, v, dist[v]); // Update the distance in the min-heap
-//             }
-//         }
-//     }
-
-//     // At this point, dist and pred arrays have the shortest distances and the predecessors
-//     freeHeap(minHeap); // Don't forget to free the heap
-
-//     // If you need to retrieve the shortest path from source to a particular vertex,
-//     // you can backtrack from the destination vertex using the pred array.
-//     // For example, to get the path from source to vertex 'dest':
-//     // int dest = /* some destination vertex */;
-//     int dest = source;
-//     std::vector<int> path;
-//     for (int at = dest; at != -1; at = pred[at])
-//     {
-//         path.push_back(at);
-//     }
-//     std::reverse(path.begin(), path.end()); // The path is in reverse order, from dest to source, so reverse it
-
-//     // Now 'path' contains the shortest path from 'source' to 'dest'
-//     // Do something with the 'path', like printing it or processing it further
-// }
-
-void Graph::singleSourceShortestPath(int source)
+void Graph::SinglePair(int source, int destination)
 {
-    // Initialize single source
-    std::fill(dist.begin(), dist.end(), std::numeric_limits<double>::max());
-    std::fill(pred.begin(), pred.end(), -1);
-    std::vector<bool> visited(numVertices, false);
-
-    HEAP *minHeap = initHeap(numVertices);
-    dist[source - 1] = 0.0; // Assuming source is 1-indexed
-
-    // Insert all vertices with their distances into the min-heap
-    for (int i = 0; i < numVertices; ++i)
-    {
-        ELEMENT *vertexElement = (ELEMENT *)malloc(sizeof(ELEMENT));
-        vertexElement->vertex = i;
-        vertexElement->key = dist[i];
-        insertHeap(minHeap, vertexElement);
-    }
-
-    // Main loop of Dijkstra's algorithm
-    while (minHeap->size > 0)
-    {
-        ELEMENT *uElement = extractMin(minHeap);
-        int u = uElement->vertex;
-        free(uElement);
-
-        if (visited[u])
-            continue;      // Skip if vertex is already visited
-        visited[u] = true; // Mark this vertex as visited
-
-        // Iterate through all adjacent vertices (neighbors) of u
-        for (Node *neighbor = adjLists[u].head; neighbor != nullptr; neighbor = neighbor->next)
-        {
-            int v = neighbor->end;
-            double weight = neighbor->weight;
-
-            // Relaxation step
-            if (!visited[v] && dist[u] + weight < dist[v])
-            {
-                dist[v] = dist[u] + weight; // Update distance
-                pred[v] = u;                // Update predecessor
-                // Here, you need to find the vertex in the heap and decrease its key
-                decreaseKey(minHeap, v, dist[v]);
-            }
-        }
-    }
-
-    freeHeap(minHeap); // Don't forget to free the heap
+    // Perform Dijkstra's algorithm here
+    dijkstra(source, destination);
 }
 
-void Graph::printPath(int s, int t)
+void Graph::dijkstra(int startVertex, int dest)
 {
-    // Convert 1-indexed input to 0-indexed
-    s--;
-    t--;
-
-    if (s < 0 || s >= numVertices || t < 0 || t >= numVertices || pred[s] == -1 || dist[t] == DBL_MAX)
+    HEAP *heap = initHeap(numVertices);
+    if (!heap)
     {
-        std::cout << "There is no path from " << s + 1 << " to " << t + 1 << ".\n";
+        cerr << "Failed to initialize heap" << endl;
         return;
     }
 
-    std::vector<int> path;
-    for (int at = t; at != -1; at = pred[at])
+    // Initialize all vertices' distances as infinity and insert them into the heap
+    for (int i = 1; i <= numVertices; i++)
+    {
+        dist[i] = std::numeric_limits<double>::max();
+        ELEMENT *elem = new ELEMENT;
+        elem->vertex = i;
+        elem->key = dist[i];
+        insertHeap(heap, elem);
+    }
+
+    dist[startVertex] = 0;
+    decreaseKey(heap, startVertex, 0);
+
+    while (heap->size > 0)
+    {
+        ELEMENT *uElem = extractMin(heap);
+        if (!uElem)
+        {
+            cerr << "extractMin returned a null pointer" << endl;
+            break;
+        }
+
+        int u = uElem->vertex;
+        delete uElem;
+
+        Node *current = adjLists[u].head;
+        while (current != nullptr)
+        {
+            int v = current->end;
+            double weight = current->weight;
+
+            if (dist[u] != std::numeric_limits<double>::max() && dist[u] + weight < dist[v])
+            {
+                dist[v] = dist[u] + weight;
+                pred[v] = u;
+                decreaseKey(heap, v, dist[v]);
+            }
+            current = current->next;
+        }
+    }
+    freeHeap(heap); // Freeing the heap after Dijkstra's algorithm is complete
+}
+
+void Graph::printPath(int source, int destination)
+{
+    // Adjust the indices to be 1-based for internal vector access
+    // cout << "Distances in printPath function:" << endl;
+    // for (int i = 1; i <= numVertices; ++i)
+    // {
+    //     cout << "Vertex " << i << ": " << dist[i] << " (pred: " << pred[i] << ")" << endl;
+    // }
+
+    if (dist[destination] == numeric_limits<double>::max())
+    {
+        cout << "There is no path from " << source << " to " << destination << ".\n";
+        return;
+    }
+
+    // Reconstruct the path from destination to source using the predecessor array
+    vector<int> path;
+    for (int at = destination; at != -1; at = pred[at])
     {
         path.push_back(at);
     }
-    std::reverse(path.begin(), path.end());
-
-    // Check if the path is valid for the source 's'
-    if (path.front() != s)
-    {
-        std::cout << "There is no path from " << s + 1 << " to " << t + 1 << ".\n";
-        return;
-    }
+    reverse(path.begin(), path.end());
 
     // Print the path
-    std::cout << "Path from " << s + 1 << " to " << t + 1 << ": ";
-    for (size_t i = 0; i < path.size(); i++)
+    cout << "The shortest path from " << source << " to " << destination << " is:\n";
+
+    // The cost to reach the source from the source is always 0
+    cout << "[" << source << ":    0.00]";
+
+    double totalCost = 0.0;
+    for (size_t i = 1; i < path.size(); ++i)
     {
-        std::cout << path[i] + 1; // Convert 0-indexed back to 1-indexed for output
-        if (i < path.size() - 1)
-        {
-            std::cout << " -> ";
-        }
+        totalCost += getEdgeWeight(path[i - 1], path[i]);
+        cout << "-->[" << path[i] << ":    " << fixed << setprecision(2) << totalCost << "]";
     }
-    std::cout << std::endl;
+
+    cout << ".\n";
 }
 
 double Graph::getEdgeWeight(int source, int destination)
 {
-    // Assuming edges are stored in a list and each node in the list has a 'weight' attribute
     Node *current = adjLists[source].head;
     while (current != nullptr)
     {
@@ -266,3 +195,46 @@ double Graph::getEdgeWeight(int source, int destination)
     }
     return std::numeric_limits<double>::infinity(); // Return infinity if no edge exists
 }
+
+void Graph::printLength(int s, int t)
+{
+    if (dist[t] != std::numeric_limits<double>::max())
+    {
+        std::cout << "Shortest path length from " << s << " to " << t << " is: " << dist[t] << std::endl;
+    }
+    else
+    {
+        std::cout << "There is no path from " << s << " to " << t << "." << std::endl;
+    }
+}
+
+// void Graph::printShortestPath(int source, int destination)
+// {
+//     // Adjust the indices to be 0-based for internal vector access
+//     source--;
+//     destination--;
+
+//     if (dist[destination] == numeric_limits<double>::max())
+//     {
+//         cout << "There is no path from " << source + 1 << " to " << destination + 1 << ".\n";
+//         return;
+//     }
+
+//     // Print the path
+//     cout << "The shortest path from " << source + 1 << " to " << destination + 1 << " is:\n";
+//     cout << "[" << source + 1 << ": 0.00]"; // The cost to reach the source from the source is always 0
+
+//     // Initialize the total cost from source
+//     double totalCost = 0.0;
+
+//     for (size_t i = 1; i < shortestPath.size(); ++i)
+//     {
+//         // The cost to reach the current vertex from the source is the distance to the predecessor plus the edge weight
+//         totalCost += getEdgeWeight(shortestPath[i - 1], shortestPath[i]);
+
+//         // Print the current vertex and the total cost to reach it from the source
+//         cout << "-->[" << shortestPath[i] + 1 << ": " << fixed << setprecision(2) << totalCost << "]";
+//     }
+
+//     cout << ".\n";
+// }

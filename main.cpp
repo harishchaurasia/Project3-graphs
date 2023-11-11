@@ -1,12 +1,19 @@
 // main.cpp
+
+#include "main.h"
 #include "graph.h"
+#include "data_structures.h"
+#include "heap.h"
+#include "util.h"
+#include "graph.h"
+#include "stack.h"
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <cstdlib> // for atoi
-#include "data_structures.h"
+#include <string>
+#include <vector>
+#include <limits>
 
-// Placeholder for handleInvalidInstruction
 void handleInvalidInstruction()
 {
     std::cerr << "Invalid instruction.\n";
@@ -32,23 +39,22 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // returning number of vertices and edges
     int numVertices, numEdges;
     inputFile >> numVertices >> numEdges;
 
     Graph graph(numVertices, isDirected);
 
-    for (int i = 0; i < numEdges; i++)
+    for (int i = 0; i < numEdges; ++i)
     {
-        int start, end, edgeIndex;
+        int edgeIndex, start, end;
         double weight;
         inputFile >> edgeIndex >> start >> end >> weight;
-
-        // Assuming that vertices in the input file are 1-indexed and need to be converted to 0-indexed
-        graph.addEdge(start - 1, end - 1, weight, flag);
+        graph.addEdge(start, end, weight, flag);
     }
 
     inputFile.close();
-    // Now handle stdin for graph manipulation and queries
+
     std::string command;
     while (std::cin >> command)
     {
@@ -64,26 +70,36 @@ int main(int argc, char *argv[])
         {
             int source, destination;
             std::cin >> source >> destination;
-            // Implement your SinglePair shortest path function here
+            // This will compute the path from source to destination.
+            graph.SinglePair(source, destination);
         }
         else if (command == "SingleSource")
         {
-            int source;
-            std::cin >> source;
-            // Implement your SingleSource shortest paths function here
+            // int source;
+            // std::cin >> source;
+            // graph.dijkstra(source); // This should compute paths from source to all vertices.
         }
         else if (command == "PrintLength")
         {
             int s, t;
             std::cin >> s >> t;
-            // Implement the printShortestPathLength function here
+            double distance = graph.getDistance(t);
+            if (distance == std::numeric_limits<double>::infinity())
+            {
+                std::cout << "There is no path from " << s << " to " << t << ".\n";
+            }
+            else
+            {
+                std::cout << "Shortest path length from " << s << " to " << t << ": " << distance << "\n";
+            }
         }
         else if (command == "PrintPath")
         {
             int s, t;
             std::cin >> s >> t;
-            // Implement the printShortestPath function here
+            graph.printPath(s, t);
         }
+
         else
         {
             handleInvalidInstruction();

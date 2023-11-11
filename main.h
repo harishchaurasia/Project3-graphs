@@ -3,4 +3,7 @@
 
 int main(int argc, char *argv[]);
 
+int numEdges(int numedges);
+int numVertices(int numvertices);
+
 #endif // MAIN_H

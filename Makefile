@@ -1,6 +1,6 @@
 EXEC = PJ3
 CC = g++
-CFLAGS = -c -Wall -std=c++11
+CFLAGS = -c -Wall
 
 $(EXEC)	:main.o util.o stack.o heap.o graph.o
 	$(CC) -o $(EXEC) main.o util.o heap.o graph.o stack.o

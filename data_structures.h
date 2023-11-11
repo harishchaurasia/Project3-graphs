@@ -10,7 +10,6 @@ struct Vertex
 {
     double key;
     int pi;
-    // Add additional members as needed
 };
 
 // Define the Edge structure
@@ -20,7 +19,6 @@ struct Edge
     int start;
     int end;
     double weight;
-    // Add additional members as needed
 };
 
 // Define the Node for the adjacency list
@@ -39,23 +37,22 @@ struct AdjacencyList
     Node *head;
 
     AdjacencyList() : head(nullptr) {}
-    // Add methods as needed
+};
+
+// Define the Element structure for the heap
+struct ELEMENT
+{
+    int vertex;
+    double key;
 };
 
 // Define the Heap structure
-typedef struct
-{
-    int vertex; // This might be needed to keep track of the vertex number in Dijkstra's algorithm
-    double key;
-    // Any other information that might be needed for the heap elements
-} ELEMENT;
-
-typedef struct
+struct HEAP
 {
     int capacity;
     int size;
-    ELEMENT **H; // Array of pointers to ELEMENT
-    // You may need a heapify count if you're keeping track of the number of heapify operations
-} HEAP;
+    ELEMENT **H;
+    int *position;
+};
 
 #endif // DATA_STRUCTURES_H
