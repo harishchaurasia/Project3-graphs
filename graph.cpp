@@ -6,6 +6,7 @@
 #include "stack.h"
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 using namespace std;
 
@@ -72,16 +73,27 @@ void Graph::insertAtRear(int start, int end, double weight)
 
 void Graph::printAdjList()
 {
-    for (int i = 1; i <= numVertices; ++i) // 1-based indexing
+    bool isEmpty = true;
+    for (int i = 1; i <= numVertices; ++i)
     {
-        cout << "ADJ[" << i << "]:";
-        Node *current = adjLists[i].head;
-        while (current != nullptr)
+        if (adjLists[i].head != nullptr)
         {
-            cout << "-->[" << i << " " << current->end << ": " << fixed << setprecision(2) << current->weight << "]";
-            current = current->next;
+            isEmpty = false;
+            break;
         }
-        cout << endl;
+    }
+
+    if (!isEmpty)
+    {
+        for (int i = 1; i <= numVertices; ++i)
+        {
+            std::cout << "ADJ[" << i << "]:";
+            for (Node *current = adjLists[i].head; current != nullptr; current = current->next)
+            {
+                std::cout << "-->[" << i << " " << current->end << ": " << std::fixed << std::setprecision(2) << current->weight << "]";
+            }
+            std::cout << std::endl;
+        }
     }
 }
 
@@ -91,14 +103,20 @@ void Graph::SinglePair(int source, int destination)
     dijkstra(source, destination);
 }
 
+void Graph::SingleSource(int source)
+{
+
+    // Reset dist and pred arrays for a fresh start
+    fill(dist.begin(), dist.end(), std::numeric_limits<double>::max());
+    fill(pred.begin(), pred.end(), -1);
+
+    // Perform Dijkstra's algorithm here
+    dijkstra(source, -1);
+}
+
 void Graph::dijkstra(int startVertex, int dest)
 {
     HEAP *heap = initHeap(numVertices);
-    if (!heap)
-    {
-        cerr << "Failed to initialize heap" << endl;
-        return;
-    }
 
     // Initialize all vertices' distances as infinity and insert them into the heap
     for (int i = 1; i <= numVertices; i++)
@@ -143,14 +161,61 @@ void Graph::dijkstra(int startVertex, int dest)
     freeHeap(heap); // Freeing the heap after Dijkstra's algorithm is complete
 }
 
+// void Graph::dijkstra(int startVertex, int dest)
+// {
+//     HEAP *heap = initHeap(numVertices);
+
+//     // Initialize all vertices' distances as infinity and insert them into the heap
+//     for (int i = 1; i <= numVertices; i++)
+//     {
+//         dist[i] = std::numeric_limits<double>::max();
+//         ELEMENT *elem = new ELEMENT;
+//         elem->vertex = i;
+//         elem->key = dist[i];
+//         insertHeap(heap, elem);
+//     }
+
+//     dist[startVertex] = 0;
+//     decreaseKey(heap, heap->H[startVertex]->key, 0); // The decreaseKey function should be called with the key
+
+//     while (heap->size > 0)
+//     {
+//         ELEMENT *uElem = extractMin(heap);
+//         if (!uElem)
+//         {
+//             cerr << "extractMin returned a null pointer" << endl;
+//             break;
+//         }
+
+//         int u = uElem->vertex;
+//         delete uElem;
+
+//         if (u == dest)
+//         {
+//             freeHeap(heap); // Free the heap before breaking out of the loop
+//             return;         // If destination is reached, end the algorithm
+//         }
+
+//         Node *current = adjLists[u].head;
+//         while (current != nullptr)
+//         {
+//             int v = current->end;
+//             double weight = current->weight;
+
+//             if (dist[u] != std::numeric_limits<double>::max() && dist[u] + weight < dist[v])
+//             {
+//                 dist[v] = dist[u] + weight;
+//                 pred[v] = u;
+//                 decreaseKey(heap, heap->H[v]->key, dist[v]); // The decreaseKey function should be called with the key
+//             }
+//             current = current->next;
+//         }
+//     }
+//     freeHeap(heap); // Freeing the heap after Dijkstra's algorithm is complete
+// }
+
 void Graph::printPath(int source, int destination)
 {
-    // Adjust the indices to be 1-based for internal vector access
-    // cout << "Distances in printPath function:" << endl;
-    // for (int i = 1; i <= numVertices; ++i)
-    // {
-    //     cout << "Vertex " << i << ": " << dist[i] << " (pred: " << pred[i] << ")" << endl;
-    // }
 
     if (dist[destination] == numeric_limits<double>::max())
     {
@@ -198,43 +263,14 @@ double Graph::getEdgeWeight(int source, int destination)
 
 void Graph::printLength(int s, int t)
 {
+    // Since vertices are 1-indexed, no adjustment is needed for accessing dist array
     if (dist[t] != std::numeric_limits<double>::max())
     {
-        std::cout << "Shortest path length from " << s << " to " << t << " is: " << dist[t] << std::endl;
+        std::cout << "The length of the shortest path from " << s << " to " << t << " is:     "
+                  << std::fixed << std::setprecision(2) << dist[t] << std::endl;
     }
     else
     {
         std::cout << "There is no path from " << s << " to " << t << "." << std::endl;
     }
 }
-
-// void Graph::printShortestPath(int source, int destination)
-// {
-//     // Adjust the indices to be 0-based for internal vector access
-//     source--;
-//     destination--;
-
-//     if (dist[destination] == numeric_limits<double>::max())
-//     {
-//         cout << "There is no path from " << source + 1 << " to " << destination + 1 << ".\n";
-//         return;
-//     }
-
-//     // Print the path
-//     cout << "The shortest path from " << source + 1 << " to " << destination + 1 << " is:\n";
-//     cout << "[" << source + 1 << ": 0.00]"; // The cost to reach the source from the source is always 0
-
-//     // Initialize the total cost from source
-//     double totalCost = 0.0;
-
-//     for (size_t i = 1; i < shortestPath.size(); ++i)
-//     {
-//         // The cost to reach the current vertex from the source is the distance to the predecessor plus the edge weight
-//         totalCost += getEdgeWeight(shortestPath[i - 1], shortestPath[i]);
-
-//         // Print the current vertex and the total cost to reach it from the source
-//         cout << "-->[" << shortestPath[i] + 1 << ": " << fixed << setprecision(2) << totalCost << "]";
-//     }
-
-//     cout << ".\n";
-// }

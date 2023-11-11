@@ -21,7 +21,6 @@ public:
     void SinglePair(int source, int destination);
     void SingleSource(int source);
     void printPath(int s, int t);
-    void printShortestPath(int source, int destination);
     void printLength(int s, int t);
     double getEdgeWeight(int source, int destination);
 

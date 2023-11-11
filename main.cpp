@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
         inputFile >> edgeIndex >> start >> end >> weight;
         graph.addEdge(start, end, weight, flag);
     }
-
     inputFile.close();
 
     std::string command;
@@ -75,23 +74,15 @@ int main(int argc, char *argv[])
         }
         else if (command == "SingleSource")
         {
-            // int source;
-            // std::cin >> source;
-            // graph.dijkstra(source); // This should compute paths from source to all vertices.
+            int source;
+            std::cin >> source;
+            graph.SingleSource(source); // This should compute paths from source to all vertices.
         }
         else if (command == "PrintLength")
         {
             int s, t;
             std::cin >> s >> t;
-            double distance = graph.getDistance(t);
-            if (distance == std::numeric_limits<double>::infinity())
-            {
-                std::cout << "There is no path from " << s << " to " << t << ".\n";
-            }
-            else
-            {
-                std::cout << "Shortest path length from " << s << " to " << t << ": " << distance << "\n";
-            }
+            graph.printLength(s, t);
         }
         else if (command == "PrintPath")
         {
