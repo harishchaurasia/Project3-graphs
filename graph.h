@@ -17,7 +17,7 @@ public:
     void addEdge(int start, int end, double weight, int flag);
     void printAdjList();
 
-    void dijkstra(int source, int dest);
+    void dijkstra(int source, int dest = -1);
     void SinglePair(int source, int destination);
     void SingleSource(int source);
     void printPath(int s, int t);

@@ -13,12 +13,6 @@
 #include <string>
 #include <vector>
 #include <limits>
-
-void handleInvalidInstruction()
-{
-    std::cerr << "Invalid instruction.\n";
-}
-
 int main(int argc, char *argv[])
 {
     if (argc != 4)
@@ -45,12 +39,19 @@ int main(int argc, char *argv[])
 
     Graph graph(numVertices, isDirected);
 
-    for (int i = 0; i < numEdges; ++i)
+    // for (int i = 0; i < numEdges; ++i)
+    // {
+    //     int edgeIndex, start, end;
+    //     double weight;
+    //     inputFile >> edgeIndex >> start >> end >> weight;
+    //     graph.addEdge(start, end, weight, flag);
+    // }
+    int edgeIndex;
+    int start, end;
+    double weight;
+    while (inputFile >> edgeIndex >> start >> end >> weight)
     {
-        int edgeIndex, start, end;
-        double weight;
-        inputFile >> edgeIndex >> start >> end >> weight;
-        graph.addEdge(start, end, weight, flag);
+        graph.addEdge(start, end, weight, flag); // 'flag' is either 1 or 2 as per your implementation
     }
     inputFile.close();
 
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
 
         else
         {
-            handleInvalidInstruction();
+            std::cerr << "Invalid instruction.\n";
         }
     }
 

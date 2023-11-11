@@ -1,5 +1,4 @@
 // heap.cpp
-
 #include "heap.h"
 #include "data_structures.h"
 #include <iostream>
@@ -20,20 +19,21 @@ HEAP *initHeap(int capacity)
     heap->capacity = capacity;
     heap->size = 0;
     heap->H = (ELEMENT **)malloc((capacity + 1) * sizeof(ELEMENT *)); // +1 for 1-based indexing
-    if (!heap->H)
+    heap->position = (int *)malloc((capacity + 1) * sizeof(int));     // +1 for 1-based indexing
+
+    if (!heap->H || !heap->position)
     {
-        fprintf(stderr, "Memory error: Cannot initialize heap array.\n");
+        fprintf(stderr, "Memory error: Cannot initialize heap structures.\n");
+        free(heap->H);
+        free(heap->position);
         free(heap);
         return NULL;
     }
 
-    heap->position = (int *)malloc((capacity + 1) * sizeof(int)); // +1 for 1-based indexing
-    if (!heap->position)
+    for (int i = 0; i <= capacity; i++)
     {
-        fprintf(stderr, "Memory error: Cannot initialize heap position array.\n");
-        free(heap->H);
-        free(heap);
-        return NULL;
+        heap->H[i] = NULL;     // Initialize all elements to NULL
+        heap->position[i] = 0; // Initialize position mapping
     }
 
     return heap;
@@ -60,6 +60,11 @@ void heapify(HEAP *heap, int i)
         ELEMENT *temp = heap->H[i];
         heap->H[i] = heap->H[smallest];
         heap->H[smallest] = temp;
+
+        // Update position mapping
+        heap->position[heap->H[i]->vertex] = i;
+        heap->position[heap->H[smallest]->vertex] = smallest;
+
         heapify(heap, smallest);
     }
 }
@@ -83,12 +88,17 @@ int insertHeap(HEAP *heap, ELEMENT *element)
     heap->size++;
     int position = heap->size;
     heap->H[position] = element;
+    heap->position[element->vertex] = position;
 
     while (position > 1 && heap->H[position / 2]->key > heap->H[position]->key)
     {
         ELEMENT *temp = heap->H[position];
         heap->H[position] = heap->H[position / 2];
         heap->H[position / 2] = temp;
+
+        heap->position[heap->H[position]->vertex] = position;
+        heap->position[heap->H[position / 2]->vertex] = position / 2;
+
         position /= 2;
     }
 
@@ -104,9 +114,12 @@ ELEMENT *extractMin(HEAP *heap)
     }
 
     ELEMENT *min = heap->H[1];
+    heap->position[min->vertex] = 0;
     heap->H[1] = heap->H[heap->size];
+    heap->position[heap->H[1]->vertex] = 1;
     heap->H[heap->size] = NULL;
     heap->size--;
+
     if (heap->size > 0)
     {
         heapify(heap, 1);
@@ -130,8 +143,8 @@ void decreaseKey(HEAP *heap, int vertex, double newKey)
         heap->H[index] = heap->H[index / 2];
         heap->H[index / 2] = temp;
 
-        // Update the position mapping
         heap->position[heap->H[index]->vertex] = index;
+        // Continue updating the position mapping
         heap->position[heap->H[index / 2]->vertex] = index / 2;
 
         index /= 2;
@@ -143,9 +156,10 @@ void printHeap(HEAP *heap)
     printf("Heap size: %d\n", heap->size);
     for (int i = 1; i <= heap->size; i++)
     {
-        printf("Key of element at position %d: %.2f\n", i, heap->H[i]->key);
+        printf("Vertex: %d, Key: %.2f\n", heap->H[i]->vertex, heap->H[i]->key);
     }
 }
+
 void freeHeap(HEAP *heap)
 {
     if (!heap)
@@ -153,9 +167,9 @@ void freeHeap(HEAP *heap)
 
     if (heap->H)
     {
-        for (int i = 1; i <= heap->capacity; i++) // Assuming 1-based indexing
+        for (int i = 1; i <= heap->capacity; i++)
         {
-            if (heap->H[i]) // Check if the element exists before freeing
+            if (heap->H[i])
             {
                 free(heap->H[i]);
             }
@@ -167,31 +181,4 @@ void freeHeap(HEAP *heap)
         free(heap->position);
     }
     free(heap);
-}
-
-bool updateKey(HEAP *heap, int vertex, double newKey)
-{
-    int index = heap->position[vertex];
-
-    // If the vertex is not in the heap or the new key is not smaller, return false
-    if (index == 0 || heap->H[index]->key <= newKey)
-    {
-        return false;
-    }
-
-    heap->H[index]->key = newKey;
-
-    while (index > 1 && heap->H[index / 2]->key > heap->H[index]->key)
-    {
-        ELEMENT *temp = heap->H[index];
-        heap->H[index] = heap->H[index / 2];
-        heap->H[index / 2] = temp;
-
-        heap->position[heap->H[index]->vertex] = index;
-        heap->position[heap->H[index / 2]->vertex] = index / 2;
-
-        index /= 2;
-    }
-
-    return true;
 }
