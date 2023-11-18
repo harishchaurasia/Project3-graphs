@@ -12,14 +12,14 @@ int lastSingleSource;
 
 Graph::Graph(int vertices, bool directed) : numVertices(vertices), isDirected(directed)
 {
-    adjLists = new AdjacencyList[numVertices + 1]; // +1 for 1-based indexing
+    adjLists = new AdjacencyList[numVertices + 1]; // using +1 for 1-based indexing
     dist.resize(numVertices + 1, std::numeric_limits<double>::max());
     pred.resize(numVertices + 1, -2);
 }
 
 Graph::~Graph()
 {
-    for (int i = 1; i <= numVertices; ++i) // 1-based indexing
+    for (int i = 1; i <= numVertices; ++i) // using 1-based indexing
     {
         Node *current = adjLists[i].head;
         while (current != nullptr)
@@ -34,7 +34,7 @@ Graph::~Graph()
 
 void Graph::addEdge(int start, int end, double weight, int flag)
 {
-    // Assuming start and end vertices are 1-indexed
+    // start and end vertices are 1-indexed
     if (flag == 1)
     {
         insertAtFront(start, end, weight);
@@ -100,18 +100,18 @@ void Graph::SinglePair(int source, int destination)
 {
 
     lastSingleSource = source;
-    // Ensure dist and pred arrays are resized and initialized
+    // Ensuring dist and pred arrays are resized and initialized
     dist.resize(numVertices + 1, numeric_limits<double>::max());
     pred.resize(numVertices + 1, -1);
 
-    // Perform Dijkstra's algorithm to compute shortest paths
+    // Performing Dijkstra's algorithm to compute the shortest paths
     dijkstra(source, destination);
 }
 
 void Graph::SingleSource(int source)
 {
     lastSingleSource = source;
-    for (int i = 1; i <= numVertices; i++) // Assuming vertices are 1-indexed
+    for (int i = 1; i <= numVertices; i++) // since vertices are 1-indexed
     {
         dist[i] = std::numeric_limits<double>::max();
         pred[i] = -1;
@@ -181,7 +181,7 @@ void Graph::printPath(int source, int destination)
     {
         if (dist[destination] == std::numeric_limits<double>::max() || (pred[destination] == -1))
         {
-            // If there's no path at all, print this
+            // If there's no path at all, we print this
 
             std::cout << "There is no path from " << source << " to " << destination << ".\n";
         }
@@ -221,16 +221,8 @@ void Graph::printPath(int source, int destination)
         int to = path[i];
         double weight = getEdgeWeight(from, to);
         totalCost += weight;
-        if (i <= 4)
-        {
-            std::cout << "-->"
-                      << "[" << to << ":    " << std::fixed << std::setprecision(2) << totalCost << "]";
-        }
-        else
-        {
-            std::cout << "-->"
-                      << "[" << to << ":   " << std::fixed << std::setprecision(2) << totalCost << "]";
-        }
+        std::cout << "-->"
+                  << "[" << std::setw(1) << to << ":" << std::fixed << std::setw(8) << std::setprecision(2) << totalCost << "]";
     }
 
     std::cout << ".\n";
