@@ -1,3 +1,8 @@
+/*
+Name: Harish Chaurasia
+ASU ID: 1225120117
+*/
+
 #include "graph.h"
 #include "heap.h"
 #include <iostream>
@@ -111,11 +116,10 @@ void Graph::SinglePair(int source, int destination)
 void Graph::SingleSource(int source)
 {
     lastSingleSource = source;
-    for (int i = 1; i <= numVertices; i++) // since vertices are 1-indexed
-    {
-        dist[i] = std::numeric_limits<double>::max();
-        pred[i] = -1;
-    }
+
+    // Ensuring dist and pred arrays are resized and initialized
+    dist.resize(numVertices + 1, numeric_limits<double>::max());
+    pred.resize(numVertices + 1, -1);
 
     dist[source] = 0;
 
@@ -189,7 +193,6 @@ void Graph::printPath(int source, int destination)
     if (source != lastSingleSource || pred[destination] == -2)
     {
         // do nothing
-        // std::cout << "";
         return;
     }
 
@@ -199,11 +202,11 @@ void Graph::printPath(int source, int destination)
         path.push_back(at);
         if (at == source)
         {
-            break; // Break if the source is reached
+            break; // Breaking if the source is reached
         }
     }
 
-    // If the path does not start from the specified source, print nothing
+    // If the path does not start from the specified source, we print nothing
     if (path.empty() || path.back() != source)
     {
         return;

@@ -3,8 +3,6 @@ Name: Harish Chaurasia
 ASU ID: 1225120117
 */
 
-// heap.h
-
 #ifndef HEAP_H
 #define HEAP_H
 
@@ -28,4 +26,4 @@ void heapify(HEAP *heap, int index);
 
 bool updateKey(HEAP *heap, int vertex, double newKey);
 
-#endif // HEAP_H
+#endif

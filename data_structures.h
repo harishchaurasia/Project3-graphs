@@ -1,18 +1,22 @@
-// data_structures.h
+/*
+Name: Harish Chaurasia
+ASU ID: 1225120117
+*/
+
 #ifndef DATA_STRUCTURES_H
 #define DATA_STRUCTURES_H
 
 #include <cfloat>
 #include <vector>
 
-// Define the Vertex structure
+// Defining the Vertex structure
 struct Vertex
 {
     double key;
     int pi;
 };
 
-// Define the Edge structure
+// Defining the Edge structure
 struct Edge
 {
     int index;
@@ -21,7 +25,7 @@ struct Edge
     double weight;
 };
 
-// Define the Node for the adjacency list
+// Defining the Node for the adjacency list
 struct Node
 {
     int end;
@@ -31,7 +35,7 @@ struct Node
     Node(int e, double w, Node *n) : end(e), weight(w), next(n) {}
 };
 
-// Define the Adjacency List structure
+// Defining the Adjacency List structure
 struct AdjacencyList
 {
     Node *head;
@@ -39,14 +43,14 @@ struct AdjacencyList
     AdjacencyList() : head(nullptr) {}
 };
 
-// Define the Element structure for the heap
+// Defining the Element structure for the heap
 struct ELEMENT
 {
     int vertex;
     double key;
 };
 
-// Define the Heap structure
+// Defining the Heap structure
 struct HEAP
 {
     int capacity;
@@ -55,4 +59,4 @@ struct HEAP
     int *position;
 };
 
-#endif // DATA_STRUCTURES_H
+#endif

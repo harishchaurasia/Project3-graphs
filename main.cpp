@@ -1,4 +1,7 @@
-// main.cpp
+/*
+Name: Harish Chaurasia
+ASU ID: 1225120117
+*/
 
 #include "main.h"
 #include "graph.h"
@@ -13,6 +16,7 @@
 #include <string>
 #include <vector>
 #include <limits>
+
 int main(int argc, char *argv[])
 {
     if (argc != 4)
@@ -39,19 +43,12 @@ int main(int argc, char *argv[])
 
     Graph graph(numVertices, isDirected);
 
-    // for (int i = 0; i < numEdges; ++i)
-    // {
-    //     int edgeIndex, start, end;
-    //     double weight;
-    //     inputFile >> edgeIndex >> start >> end >> weight;
-    //     graph.addEdge(start, end, weight, flag);
-    // }
     int edgeIndex;
     int start, end;
     double weight;
     while (inputFile >> edgeIndex >> start >> end >> weight)
     {
-        graph.addEdge(start, end, weight, flag); // 'flag' is either 1 or 2 as per your implementation
+        graph.addEdge(start, end, weight, flag);
     }
     inputFile.close();
 
@@ -70,14 +67,14 @@ int main(int argc, char *argv[])
         {
             int source, destination;
             std::cin >> source >> destination;
-            // This will compute the path from source to destination.
+
             graph.SinglePair(source, destination);
         }
         else if (command == "SingleSource")
         {
             int source;
             std::cin >> source;
-            graph.SingleSource(source); // This should compute paths from source to all vertices.
+            graph.SingleSource(source);
         }
         else if (command == "PrintLength")
         {
